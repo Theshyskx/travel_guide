@@ -1,0 +1,1326 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>旅游向导</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f8f9fa;
+            height: 100vh;
+            display: flex;
+            overflow: hidden;
+        }
+        
+        .sidebar {
+            width: 280px;
+            background-color: #ffffff;
+            border-right: 1px solid #e8e8e8;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .sidebar-header {
+            padding: 16px;
+            border-bottom: 1px solid #e8e8e8;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .sidebar-header h1 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1a73e8;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .logo-icon {
+            width: 24px;
+            height: 24px;
+            color: #1a73e8;
+        }
+        
+        .new-chat-btn {
+            background-color: #1a73e8;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            padding: 8px 16px;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: background-color 0.2s;
+        }
+        
+        .new-chat-btn:hover {
+            background-color: #1557b0;
+        }
+        
+        .chat-history {
+            flex: 1;
+            overflow-y: auto;
+            padding: 8px;
+        }
+        
+        .chat-item {
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+        
+        .chat-item:hover {
+            background-color: #f0f0f0;
+        }
+        
+        .chat-item.active {
+            background-color: #e8f0fe;
+        }
+        
+        .chat-content {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .chat-title {
+            font-size: 14px;
+            font-weight: 500;
+            color: #333;
+        }
+        
+        .chat-preview {
+            font-size: 13px;
+            color: #666;
+            margin-top: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .chat-time {
+            font-size: 12px;
+            color: #999;
+            margin-top: 4px;
+        }
+        
+        .chat-actions {
+            margin-left: 8px;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        
+        .chat-item:hover .chat-actions {
+            opacity: 1;
+        }
+        
+        .chat-action-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 4px;
+            color: #666;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .chat-action-btn:hover {
+            background-color: #e0e0e0;
+            color: #333;
+        }
+        
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background-color: #ffffff;
+        }
+        
+        .main-header {
+            padding: 16px 24px;
+            border-bottom: 1px solid #e8e8e8;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .main-header h2 {
+            font-size: 16px;
+            font-weight: 500;
+            color: #333;
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .chat-area {
+            flex: 1;
+            padding: 24px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .welcome-message {
+            text-align: center;
+            max-width: 700px;
+        }
+        
+        .welcome-icon {
+            width: 64px;
+            height: 64px;
+            color: #1a73e8;
+            margin-bottom: 16px;
+        }
+        
+        .welcome-message h3 {
+            font-size: 28px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 12px;
+        }
+        
+        .welcome-message p {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 32px;
+        }
+        
+        .quick-questions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            justify-content: center;
+        }
+        
+        .quick-question {
+            background-color: #f8f9fa;
+            border: 1px solid #e0e0e0;
+            border-radius: 20px;
+            padding: 10px 20px;
+            font-size: 14px;
+            color: #333;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .quick-question:hover {
+            background-color: #e8f0fe;
+            border-color: #1a73e8;
+        }
+        
+        .quick-question svg {
+            width: 16px;
+            height: 16px;
+            color: #1a73e8;
+        }
+        
+        .chat-messages {
+            flex: 1;
+            padding: 24px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            width: 100%;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        .message {
+            max-width: 80%;
+            padding: 14px 18px;
+            border-radius: 16px;
+            line-height: 1.6;
+            font-size: 15px;
+        }
+        
+        .user-message {
+            align-self: flex-end;
+            background-color: #1a73e8;
+            color: white;
+        }
+        
+        .ai-message {
+            align-self: flex-start;
+            background-color: #f1f3f4;
+            color: #333;
+        }
+        
+        .input-area {
+            padding: 16px 24px;
+            border-top: 1px solid #e8e8e8;
+            background-color: #ffffff;
+        }
+        
+        .input-wrapper {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        .feature-bar {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+            padding: 0 4px;
+        }
+        
+        .feature-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 14px;
+            background-color: #f8f9fa;
+            border: 1px solid #e0e0e0;
+            border-radius: 20px;
+            font-size: 13px;
+            color: #5f6368;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .feature-btn:hover {
+            background-color: #e8f0fe;
+            border-color: #1a73e8;
+            color: #1a73e8;
+        }
+        
+        .feature-btn svg {
+            width: 16px;
+            height: 16px;
+        }
+        
+        .feature-btn .new-badge {
+            background-color: #ea4335;
+            color: white;
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 10px;
+            margin-left: 4px;
+        }
+        
+        .input-container {
+            display: flex;
+            align-items: center;
+            background-color: #f1f3f4;
+            border-radius: 24px;
+            padding: 8px 8px 8px 20px;
+            border: 1px solid transparent;
+            transition: border-color 0.2s, background-color 0.2s;
+        }
+        
+        .input-container:focus-within {
+            background-color: #ffffff;
+            border-color: #1a73e8;
+        }
+        
+        .input-box {
+            flex: 1;
+            border: none;
+            background: transparent;
+            padding: 10px 0;
+            font-size: 15px;
+            outline: none;
+            color: #333;
+        }
+        
+        .input-box::placeholder {
+            color: #9aa0a6;
+        }
+        
+        .input-buttons {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+        }
+        
+        .input-button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 50%;
+            transition: background-color 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #5f6368;
+        }
+        
+        .input-button:hover {
+            background-color: #e0e0e0;
+            color: #333;
+        }
+        
+        .input-button svg {
+            width: 20px;
+            height: 20px;
+        }
+        
+        .send-button {
+            background-color: #1a73e8;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.2s;
+        }
+        
+        .send-button:hover {
+            background-color: #1557b0;
+        }
+        
+        .send-button svg {
+            width: 18px;
+            height: 18px;
+        }
+        
+        .voice-recording {
+            background-color: #ea4335 !important;
+            color: white !important;
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+        }
+        
+        .voice-status {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 20px 40px;
+            border-radius: 12px;
+            font-size: 16px;
+            z-index: 1000;
+            display: none;
+        }
+        
+        .voice-status.show {
+            display: block;
+        }
+        
+        .divider {
+            height: 20px;
+            width: 1px;
+            background-color: #dadce0;
+            margin: 0 4px;
+        }
+
+        .user-bar {
+            padding: 12px 16px;
+            border-bottom: 1px solid #e8e8e8;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .user-actions {
+            display: flex;
+            gap: 8px;
+            width: 100%;
+        }
+
+        .user-btn {
+            flex: 1;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            text-align: center;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+
+        .login-btn {
+            background-color: #1a73e8;
+            color: white;
+        }
+
+        .login-btn:hover {
+            background-color: #1557b0;
+        }
+
+        .register-btn {
+            background-color: #e8f0fe;
+            color: #1a73e8;
+        }
+
+        .register-btn:hover {
+            background-color: #d4e4fc;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .username {
+            font-size: 14px;
+            color: #333;
+            font-weight: 500;
+            flex: 1;
+        }
+
+        .user-info:hover .user-dropdown {
+            display: block;
+        }
+
+        .user-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            min-width: 120px;
+            display: none;
+            z-index: 100;
+        }
+
+        .dropdown-item {
+            width: 100%;
+            padding: 10px 16px;
+            border: none;
+            background: none;
+            text-align: left;
+            font-size: 14px;
+            color: #333;
+            cursor: pointer;
+        }
+
+        .dropdown-item:hover {
+            background-color: #f5f5f5;
+        }
+
+        .admin-link {
+            padding: 8px 0;
+            border-top: 1px solid #e8e8e8;
+            margin-top: 8px;
+        }
+
+        .admin-btn {
+            display: block;
+            text-align: center;
+            padding: 8px;
+            color: #666;
+            text-decoration: none;
+            font-size: 12px;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+
+        .admin-btn:hover {
+            background-color: #f5f5f5;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h1>
+                <svg class="logo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                    <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                </svg>
+                旅游向导
+            </h1>
+            <button class="new-chat-btn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+                新对话
+            </button>
+        </div>
+
+        <div class="user-bar" id="userBar">
+            <div class="user-actions" id="userActions">
+                <a href="user_login.html" class="user-btn login-btn">登录</a>
+                <a href="register.html" class="user-btn register-btn">注册</a>
+            </div>
+            <div class="user-info" id="userInfo" style="display: none;">
+                <span class="username" id="usernameDisplay"></span>
+                <div class="user-dropdown">
+                    <button class="dropdown-item" onclick="logout()">退出登录</button>
+                </div>
+            </div>
+            <div class="admin-link">
+                <a href="admin_login.html" class="admin-btn">管理员入口</a>
+            </div>
+        </div>
+        <div class="chat-history">
+            <div class="chat-item active">
+                <div class="chat-title">凤凰古城游玩攻略</div>
+                <div class="chat-preview">湖南湘西凤凰古城旅游建议</div>
+            </div>
+            <div class="chat-item">
+                <div class="chat-title">阳朔旅游推荐</div>
+                <div class="chat-preview">广西桂林阳朔美食景点</div>
+            </div>
+            <div class="chat-item">
+                <div class="chat-title">丽江古城攻略</div>
+                <div class="chat-preview">云南丽江古城住宿交通</div>
+            </div>
+            <div class="chat-item">
+                <div class="chat-title">婺源篁岭游玩</div>
+                <div class="chat-preview">江西婺源篁岭晒秋景点</div>
+            </div>
+            <div class="chat-item">
+                <div class="chat-title">千岛湖旅游</div>
+                <div class="chat-preview">浙江千岛湖中心湖区攻略</div>
+            </div>
+            <div class="chat-item">
+                <div class="chat-title">黄果树瀑布</div>
+                <div class="chat-preview">贵州黄果树瀑布游览建议</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="main-content">
+        <div class="main-header">
+            <h2>凤凰古城游玩攻略</h2>
+            <div class="header-actions">
+                <button class="input-button" title="分享">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="18" cy="5" r="3"></circle>
+                        <circle cx="6" cy="12" r="3"></circle>
+                        <circle cx="18" cy="19" r="3"></circle>
+                        <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+                        <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+                    </svg>
+                </button>
+                <button class="input-button" title="更多">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="1"></circle>
+                        <circle cx="19" cy="12" r="1"></circle>
+                        <circle cx="5" cy="12" r="1"></circle>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        
+        <div class="chat-area" id="chatArea">
+            <div class="welcome-message">
+                <svg class="welcome-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="M2 12h20"></path>
+                    <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                </svg>
+                <h3>想去哪里旅行？</h3>
+                <p>我是您的专属旅游向导，为您提供全球各地的吃喝玩乐住推荐</p>
+                <div class="quick-questions">
+                    <div class="quick-question">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                            <circle cx="12" cy="10" r="3"></circle>
+                        </svg>
+                        凤凰古城怎么玩
+                    </div>
+                    <div class="quick-question">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+                            <path d="M2 17l10 5 10-5"></path>
+                            <path d="M2 12l10 5 10-5"></path>
+                        </svg>
+                        阳朔必吃美食
+                    </div>
+                    <div class="quick-question">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                        </svg>
+                        丽江古城住宿推荐
+                    </div>
+                    <div class="quick-question">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+                            <line x1="1" y1="10" x2="23" y2="10"></line>
+                        </svg>
+                        婺源篁岭晒秋攻略
+                    </div>
+                    <div class="quick-question">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon>
+                        </svg>
+                        千岛湖景点推荐
+                    </div>
+                    <div class="quick-question">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                        </svg>
+                        黄果树瀑布游览建议
+                    </div>
+                    <div class="quick-question">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                        </svg>
+                        平遥古城交通指南
+                    </div>
+                    <div class="quick-question">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="8" y1="6" x2="21" y2="6"></line>
+                            <line x1="8" y1="12" x2="21" y2="12"></line>
+                            <line x1="8" y1="18" x2="21" y2="18"></line>
+                            <line x1="3" y1="6" x2="3.01" y2="6"></line>
+                            <line x1="3" y1="12" x2="3.01" y2="12"></line>
+                            <line x1="3" y1="18" x2="3.01" y2="18"></line>
+                        </svg>
+                        西藏旅行清单
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="input-area">
+            <div class="input-wrapper">
+                <div class="input-container">
+                    <input type="text" class="input-box" placeholder="想去凤凰古城、阳朔还是丽江？告诉我目的地，我为您推荐吃喝玩乐住..." id="messageInput">
+                    <div class="input-buttons">
+                        <button class="input-button" title="语音输入" id="voiceButton">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+                                <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                                <line x1="12" y1="19" x2="12" y2="23"></line>
+                                <line x1="8" y1="23" x2="16" y2="23"></line>
+                            </svg>
+                        </button>
+                        <div class="divider"></div>
+                        <button class="send-button" id="sendButton" title="发送">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="22" y1="2" x2="11" y2="13"></line>
+                                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="voice-status" id="voiceStatus">正在录音...</div>
+    
+    <script>
+        // 聊天历史数据
+        let chatHistory = [];
+        let currentSessionId = null;
+
+        // 消息数据
+        let messages = [];
+
+        // 当前登录用户
+        let currentUser = null;
+
+        // DOM元素
+        const chatArea = document.getElementById('chatArea');
+        const messageInput = document.getElementById('messageInput');
+        const sendButton = document.getElementById('sendButton');
+        const chatHistoryContainer = document.querySelector('.chat-history');
+        const newChatBtn = document.querySelector('.new-chat-btn');
+        const voiceButton = document.getElementById('voiceButton');
+        const userActions = document.getElementById('userActions');
+        const userInfo = document.getElementById('userInfo');
+        const usernameDisplay = document.getElementById('usernameDisplay');
+
+        // 检查用户登录状态
+        function checkUserLogin() {
+            const userData = localStorage.getItem('user');
+            if (userData) {
+                currentUser = JSON.parse(userData);
+                userActions.style.display = 'none';
+                userInfo.style.display = 'flex';
+                usernameDisplay.textContent = currentUser.username || currentUser.user_id;
+                return true;
+            } else {
+                currentUser = null;
+                userActions.style.display = 'flex';
+                userInfo.style.display = 'none';
+                return false;
+            }
+        }
+
+        // 退出登录
+        function logout() {
+            if (confirm('确定要退出登录吗？')) {
+                localStorage.removeItem('user');
+                localStorage.removeItem('sessionId');
+                currentUser = null;
+                currentSessionId = null;
+                checkUserLogin();
+                location.reload();
+            }
+        }
+
+        // 生成会话ID（区分不同用户）
+        function getSessionId() {
+            const prefix = currentUser ? `user_${currentUser.user_id}_` : 'guest_';
+            let sessionId = localStorage.getItem('sessionId');
+
+            if (!sessionId || !sessionId.startsWith(prefix)) {
+                sessionId = prefix + Date.now();
+                localStorage.setItem('sessionId', sessionId);
+            }
+            return sessionId;
+        }
+        
+        // 开始录音
+        async function startRecording() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                mediaRecorder = new MediaRecorder(stream);
+                audioChunks = [];
+                
+                mediaRecorder.ondataavailable = (event) => {
+                    audioChunks.push(event.data);
+                };
+                
+                mediaRecorder.onstop = async () => {
+                    const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+                    await transcribeAudio(audioBlob);
+                    
+                    // 停止所有音频轨道
+                    stream.getTracks().forEach(track => track.stop());
+                };
+                
+                mediaRecorder.start();
+                isRecording = true;
+                voiceButton.classList.add('voice-recording');
+                voiceStatus.classList.add('show');
+                voiceStatus.textContent = '正在录音...';
+                
+            } catch (error) {
+                console.error('无法访问麦克风:', error);
+                alert('无法访问麦克风，请检查权限设置');
+            }
+        }
+        
+        // 停止录音
+        function stopRecording() {
+            if (mediaRecorder && isRecording) {
+                mediaRecorder.stop();
+                isRecording = false;
+                voiceButton.classList.remove('voice-recording');
+                voiceStatus.classList.remove('show');
+            }
+        }
+        
+        // 语音转文字
+        async function transcribeAudio(audioBlob) {
+            voiceStatus.classList.add('show');
+            voiceStatus.textContent = '正在转换...';
+            
+            try {
+                const formData = new FormData();
+                formData.append('file', audioBlob, 'audio.wav');
+                
+                const response = await fetch('http://localhost:8081/speech-to-text', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success && data.text) {
+                        messageInput.value = data.text;
+                        messageInput.focus();
+                    }
+                } else {
+                    console.error('语音识别失败:', response.status);
+                    alert('语音识别失败，请重试');
+                }
+            } catch (error) {
+                console.error('语音识别错误:', error);
+                alert('语音识别出错，请重试');
+            } finally {
+                voiceStatus.classList.remove('show');
+            }
+        }
+        
+        // 语音按钮点击事件
+        voiceButton.addEventListener('click', () => {
+            if (isRecording) {
+                stopRecording();
+            } else {
+                startRecording();
+            }
+        });
+        
+        // 获取会话列表
+        async function fetchSessions() {
+            try {
+                const response = await fetch('http://localhost:8081/sessions');
+                if (response.ok) {
+                    const sessions = await response.json();
+                    chatHistory = sessions;
+                    updateChatHistoryUI();
+                    return sessions;
+                }
+            } catch (error) {
+                console.error('获取会话列表失败:', error);
+            }
+            return [];
+        }
+        
+        // 更新聊天历史UI
+        function updateChatHistoryUI() {
+            chatHistoryContainer.innerHTML = '';
+            
+            chatHistory.forEach(chat => {
+                const chatItem = document.createElement('div');
+                chatItem.className = `chat-item ${chat.id === currentSessionId ? 'active' : ''}`;
+                
+                // 格式化时间
+                const timeStr = formatTime(chat.updated_at);
+                
+                chatItem.innerHTML = `
+                    <div class="chat-content">
+                        <div class="chat-title">${chat.title}</div>
+                        <div class="chat-preview">${chat.preview}</div>
+                        <div class="chat-time">${timeStr}</div>
+                    </div>
+                    <div class="chat-actions">
+                        <button class="chat-action-btn" data-action="delete" data-session-id="${chat.id}">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="3 6 5 6 21 6"></polyline>
+                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                <line x1="10" y1="11" x2="10" y2="17"></line>
+                                <line x1="14" y1="11" x2="14" y2="17"></line>
+                            </svg>
+                        </button>
+                    </div>
+                `;
+                
+                // 点击对话项切换会话
+                chatItem.querySelector('.chat-content').addEventListener('click', () => switchChat(chat.id));
+                
+                // 点击删除按钮
+                const deleteBtn = chatItem.querySelector('[data-action="delete"]');
+                deleteBtn.addEventListener('click', (e) => {
+                    e.stopPropagation(); // 阻止事件冒泡
+                    deleteChat(chat.id);
+                });
+                
+                chatHistoryContainer.appendChild(chatItem);
+            });
+        }
+        
+        // 删除对话
+        async function deleteChat(sessionId) {
+            if (confirm('确定要删除这个对话吗？')) {
+                try {
+                    const response = await fetch(`http://localhost:8081/sessions/${sessionId}`, {
+                        method: 'DELETE'
+                    });
+                    
+                    if (response.ok) {
+                        // 更新会话列表
+                        await fetchSessions();
+                        
+                        // 如果删除的是当前会话，切换到第一个会话
+                        if (sessionId === currentSessionId) {
+                            if (chatHistory.length > 0) {
+                                await switchChat(chatHistory[0].id);
+                            } else {
+                                createNewChat();
+                            }
+                        }
+                    }
+                } catch (error) {
+                    console.error('删除会话失败:', error);
+                }
+            }
+        }
+        
+        // 格式化时间
+        function formatTime(isoString) {
+            if (!isoString) return '';
+            const date = new Date(isoString);
+            const now = new Date();
+            const diff = now - date;
+            
+            // 小于1小时
+            if (diff < 3600000) {
+                const minutes = Math.floor(diff / 60000);
+                return minutes < 1 ? '刚刚' : `${minutes}分钟前`;
+            }
+            // 小于24小时
+            if (diff < 86400000) {
+                const hours = Math.floor(diff / 3600000);
+                return `${hours}小时前`;
+            }
+            // 小于7天
+            if (diff < 604800000) {
+                const days = Math.floor(diff / 86400000);
+                return `${days}天前`;
+            }
+            // 超过7天，显示具体日期
+            return date.toLocaleDateString('zh-CN', { month: 'short', day: 'numeric' });
+        }
+        
+        // 初始化会话
+        async function initSession() {
+            await fetchSessions();
+            if (chatHistory.length === 0) {
+                createNewChat();
+            } else {
+                // 激活第一个会话
+                switchChat(chatHistory[0].id);
+            }
+        }
+        
+        // 发送消息
+        async function sendMessage() {
+            const message = messageInput.value.trim();
+            if (message) {
+                // 确保有当前会话ID
+                if (!currentSessionId) {
+                    currentSessionId = getSessionId();
+                }
+                
+                // 添加用户消息
+                addMessage(message, 'user');
+                messageInput.value = '';
+                
+                try {
+                    // 1. 创建 AI 消息容器（初始显示正在思考）
+                    if (messages.length === 0) {
+                        chatArea.innerHTML = '<div class="chat-messages" id="chatMessages"></div>';
+                    }
+                    const chatMessages = document.getElementById('chatMessages');
+                    const aiMessageDiv = document.createElement('div');
+                    aiMessageDiv.className = 'message ai-message';
+                    aiMessageDiv.textContent = '...';
+                    chatMessages.appendChild(aiMessageDiv);
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+
+                    // 2. 发送请求到流式接口
+                    const response = await fetch('http://localhost:8081/chat/stream', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ 
+                            message: message,
+                            session_id: currentSessionId
+                        })
+                    });
+
+                    if (!response.ok) {
+                        aiMessageDiv.textContent = '抱歉，服务暂时不可用，请稍后重试。';
+                        return;
+                    }
+
+                    // 3. 处理流式响应
+                    const reader = response.body.getReader();
+                    const decoder = new TextDecoder();
+                    let fullAiResponse = '';
+                    let buffer = ''; // 用于处理跨 chunk 的行
+                    aiMessageDiv.textContent = ''; // 清除 "..."
+
+                    while (true) {
+                        const { done, value } = await reader.read();
+                        if (done) break;
+
+                        buffer += decoder.decode(value, { stream: true });
+                        const lines = buffer.split('\n');
+                        
+                        // 最后一行可能是不完整的，保留在 buffer 中
+                        buffer = lines.pop();
+
+                        for (const line of lines) {
+                            const trimmedLine = line.trim();
+                            if (trimmedLine.startsWith('data: ')) {
+                                try {
+                                    const eventData = JSON.parse(trimmedLine.substring(6));
+                                    if (eventData.event === 'message') {
+                                        const content = eventData.data.content;
+                                        fullAiResponse += content;
+                                        // 实时更新 UI
+                                        aiMessageDiv.textContent = fullAiResponse;
+                                        chatMessages.scrollTop = chatMessages.scrollHeight;
+                                    } else if (eventData.event === 'done') {
+                                        // 流结束
+                                        break;
+                                    }
+                                } catch (e) {
+                                    console.error('解析流数据失败:', e, line);
+                                }
+                            }
+                        }
+                    }
+
+                    // 4. 保存到本地存储并更新会话列表
+                    addMessageToHistory(fullAiResponse, 'ai');
+                    fetchSessions();
+
+                } catch (error) {
+                    console.error('API error:', error);
+                    addMessage('网络连接失败，请检查您的网络设置。', 'ai');
+                }
+            }
+        }
+
+        // 将消息添加到历史记录（不重复渲染）
+        function addMessageToHistory(text, type) {
+            const timestamp = new Date();
+            const message = { content: text, role: type, timestamp: timestamp.toISOString() };
+            messages.push(message);
+            
+            if (currentSessionId) {
+                localStorage.setItem(`messages_${currentSessionId}`, JSON.stringify(messages));
+            }
+        }
+        
+        // 添加消息到聊天区域（并记录历史）
+        function addMessage(text, type) {
+            // 如果是第一条消息，替换欢迎界面
+            if (messages.length === 0) {
+                chatArea.innerHTML = '<div class="chat-messages" id="chatMessages"></div>';
+            }
+            
+            const chatMessages = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${type}-message`;
+            messageDiv.textContent = text;
+            chatMessages.appendChild(messageDiv);
+            
+            // 滚动到底部
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            
+            // 记录到历史
+            addMessageToHistory(text, type);
+        }
+        
+        // 切换聊天历史
+        async function switchChat(sessionId) {
+            currentSessionId = sessionId;
+            
+            // 更新UI
+            updateChatHistoryUI();
+            
+            // 更新标题
+            const chat = chatHistory.find(c => c.id === sessionId);
+            if (chat) {
+                document.querySelector('.main-header h2').textContent = chat.title;
+            }
+            
+            // 从本地存储加载历史消息
+            loadMessagesFromStorage(sessionId);
+        }
+        
+        // 从本地存储加载消息
+        function loadMessagesFromStorage(sessionId) {
+            const storedMessages = localStorage.getItem(`messages_${sessionId}`);
+            if (storedMessages) {
+                messages = JSON.parse(storedMessages);
+                renderMessages();
+            } else {
+                // 如果没有历史消息，显示欢迎消息
+                messages = [];
+                chatArea.innerHTML = `
+                    <div class="welcome-message">
+                        <svg class="welcome-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <path d="M2 12h20"></path>
+                            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                        </svg>
+                        <h3>想去哪里旅行？</h3>
+                        <p>我是您的专属旅游向导，为您提供全球各地的吃喝玩乐住推荐</p>
+                        <div class="quick-questions">
+                            <div class="quick-question">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                                    <circle cx="12" cy="10" r="3"></circle>
+                                </svg>
+                                凤凰古城怎么玩
+                            </div>
+                            <div class="quick-question">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+                                    <path d="M2 17l10 5 10-5"></path>
+                                    <path d="M2 12l10 5 10-5"></path>
+                                </svg>
+                                阳朔必吃美食
+                            </div>
+                            <div class="quick-question">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                                    <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                                </svg>
+                                丽江古城住宿推荐
+                            </div>
+                            <div class="quick-question">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+                                    <line x1="1" y1="10" x2="23" y2="10"></line>
+                                </svg>
+                                婺源篁岭晒秋攻略
+                            </div>
+                            <div class="quick-question">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon>
+                                </svg>
+                                千岛湖景点推荐
+                            </div>
+                            <div class="quick-question">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                                </svg>
+                                黄果树瀑布游览建议
+                            </div>
+                            <div class="quick-question">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                                </svg>
+                                平遥古城交通指南
+                            </div>
+                            <div class="quick-question">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="8" y1="6" x2="21" y2="6"></line>
+                                    <line x1="8" y1="12" x2="21" y2="12"></line>
+                                    <line x1="8" y1="18" x2="21" y2="18"></line>
+                                    <line x1="3" y1="6" x2="3.01" y2="6"></line>
+                                    <line x1="3" y1="12" x2="3.01" y2="12"></line>
+                                    <line x1="3" y1="18" x2="3.01" y2="18"></line>
+                                </svg>
+                                武隆天生三桥攻略
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                // 重新绑定快速问题点击事件
+                bindQuickQuestions();
+            }
+        }
+        
+        // 渲染消息
+        function renderMessages() {
+            if (messages.length === 0) {
+                return;
+            }
+            
+            chatArea.innerHTML = '<div class="chat-messages" id="chatMessages"></div>';
+            const chatMessages = document.getElementById('chatMessages');
+            
+            messages.forEach(msg => {
+                const messageElement = document.createElement('div');
+                // 兼容不同格式的消息对象
+                const role = msg.role || msg.type;
+                const content = msg.content || msg.text;
+                const timestamp = msg.timestamp;
+                
+                messageElement.className = `message ${role === 'user' ? 'user-message' : 'ai-message'}`;
+                messageElement.textContent = content;
+                chatMessages.appendChild(messageElement);
+            });
+            
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+        
+        // 创建新对话
+        async function createNewChat() {
+            // 生成新的会话ID（每次都生成新的）
+            const prefix = currentUser ? `user_${currentUser.user_id}_` : 'guest_';
+            const newSessionId = prefix + Date.now();
+            localStorage.setItem('sessionId', newSessionId);
+            currentSessionId = newSessionId;
+            
+            // 发送请求到后端创建新会话
+            try {
+                const response = await fetch('http://localhost:8081/sessions', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ 
+                        session_id: newSessionId,
+                        title: '新对话',
+                        preview: '想去哪里旅行？'
+                    })
+                });
+                
+                if (response.ok) {
+                    // 更新会话列表
+                    await fetchSessions();
+                    // 激活新会话
+                    await switchChat(newSessionId);
+                }
+            } catch (error) {
+                console.error('创建新会话失败:', error);
+            }
+        }
+        
+        // 事件监听
+        sendButton.addEventListener('click', sendMessage);
+        
+        messageInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+        
+        // 新对话按钮点击事件
+        newChatBtn.addEventListener('click', createNewChat);
+        
+        // 快速问题点击事件
+        document.addEventListener('click', async (e) => {
+            if (e.target.classList.contains('quick-question') || e.target.closest('.quick-question')) {
+                const questionEl = e.target.classList.contains('quick-question') ? e.target : e.target.closest('.quick-question');
+                const question = questionEl.textContent.trim();
+                messageInput.value = question;
+                await sendMessage();
+            }
+        });
+        
+        // 初始化会话
+        window.onload = async function() {
+            checkUserLogin();
+            await initSession();
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,26 @@
+# 基础依赖
+python-dotenv>=1.0.0
+pymysql>=1.1.0
+fastapi>=0.104.0
+uvicorn>=0.24.0
+pydantic>=2.5.0
+
+# LangChain & LangGraph
+langchain>=0.2.0
+langgraph>=0.1.0
+langchain-openai>=0.1.0
+langchain-community>=0.2.0
+
+# 向量数据库
+chromadb>=0.4.0
+
+# 模型服务
+openai>=1.0.0
+openai-whisper>=20231117
+
+# 中文处理
+opencc-python-reimplemented>=0.1.6
+
+# 日志和工具
+python-multipart>=0.0.6
+aiofiles>=23.0.0

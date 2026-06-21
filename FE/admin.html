@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>日志管理 - 旅游向导后台</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f5f6fa;
+            min-height: 100vh;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            font-size: 24px;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logout-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+
+        .logout-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 30px 40px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 0;
+        }
+
+        .tab {
+            padding: 12px 24px;
+            background: none;
+            border: none;
+            font-size: 15px;
+            color: #666;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .tab:hover {
+            color: #667eea;
+        }
+
+        .tab.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+            font-weight: 600;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .filter-form {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .filter-form input,
+        .filter-form select {
+            padding: 8px 12px;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .filter-form button {
+            padding: 8px 16px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+
+        .filter-form button:hover {
+            background: #5568d3;
+        }
+
+        .filter-form button.secondary {
+            background: #f0f0f0;
+            color: #666;
+        }
+
+        .filter-form button.secondary:hover {
+            background: #e0e0e0;
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+        }
+
+        td {
+            font-size: 13px;
+            color: #666;
+        }
+
+        tr:hover td {
+            background: #f8f9fa;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-badge.success {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .status-badge.error {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        .status-badge.info {
+            background: #e3f2fd;
+            color: #1565c0;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .pagination button {
+            padding: 8px 16px;
+            border: 1px solid #e0e0e0;
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .pagination button:hover:not(:disabled) {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .pagination button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .pagination span {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #667eea;
+            text-decoration: none;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .stat-card h3 {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .stat-card .value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .login-type-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .login-type-badge.login {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .login-type-badge.logout {
+            background: #fff3e0;
+            color: #e65100;
+        }
+
+        .login-type-badge.register {
+            background: #e3f2fd;
+            color: #1565c0;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>旅游向导 - 日志管理</h1>
+        <div class="header-right">
+            <div class="user-info">
+                <span id="adminName">管理员</span>
+            </div>
+            <button class="logout-btn" onclick="logout()">退出登录</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <a href="index.html" class="back-link">
+            ← 返回旅游向导
+        </a>
+
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('system')">系统日志</button>
+            <button class="tab" onclick="switchTab('login')">登录日志</button>
+            <button class="tab" onclick="switchTab('users')">用户管理</button>
+        </div>
+
+        <div id="systemLogs">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">系统日志</h2>
+                    <div class="filter-form">
+                        <input type="text" id="sysUserId" placeholder="用户ID">
+                        <input type="text" id="sysAction" placeholder="操作类型">
+                        <input type="text" id="sysResource" placeholder="资源路径">
+                        <input type="date" id="sysStartTime">
+                        <input type="date" id="sysEndTime">
+                        <button onclick="loadSystemLogs(1)">查询</button>
+                        <button class="secondary" onclick="clearFilters('system')">清空</button>
+                        <button class="secondary" onclick="cleanupLogs()">清理30天前日志</button>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>时间</th>
+                                <th>用户</th>
+                                <th>操作</th>
+                                <th>资源</th>
+                                <th>方法</th>
+                                <th>IP</th>
+                                <th>状态</th>
+                                <th>耗时</th>
+                            </tr>
+                        </thead>
+                        <tbody id="systemLogsBody">
+                            <tr>
+                                <td colspan="8" class="no-data">加载中...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="pagination" id="systemPagination"></div>
+            </div>
+        </div>
+
+        <div id="loginLogs" style="display: none;">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">登录日志</h2>
+                    <div class="filter-form">
+                        <input type="text" id="loginUserId" placeholder="用户ID">
+                        <input type="date" id="loginStartTime">
+                        <input type="date" id="loginEndTime">
+                        <button onclick="loadLoginLogs(1)">查询</button>
+                        <button class="secondary" onclick="clearFilters('login')">清空</button>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>时间</th>
+                                <th>用户ID</th>
+                                <th>用户名</th>
+                                <th>类型</th>
+                                <th>IP</th>
+                                <th>状态</th>
+                                <th>原因</th>
+                            </tr>
+                        </thead>
+                        <tbody id="loginLogsBody">
+                            <tr>
+                                <td colspan="7" class="no-data">加载中...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="pagination" id="loginPagination"></div>
+            </div>
+        </div>
+
+        <div id="userManagement" style="display: none;">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">用户列表</h2>
+                    <div class="filter-form">
+                        <select id="userRole">
+                            <option value="">全部角色</option>
+                            <option value="user">普通用户</option>
+                            <option value="admin">管理员</option>
+                        </select>
+                        <button onclick="loadUsers(1)">查询</button>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>用户ID</th>
+                                <th>用户名</th>
+                                <th>角色</th>
+                                <th>邮箱</th>
+                                <th>手机</th>
+                                <th>状态</th>
+                                <th>创建时间</th>
+                                <th>最后登录</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersBody">
+                            <tr>
+                                <td colspan="8" class="no-data">加载中...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="pagination" id="usersPagination"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentTab = 'system';
+        let currentSystemPage = 1;
+        let currentLoginPage = 1;
+        let currentUsersPage = 1;
+        let pageSize = 20;
+
+        function checkAuth() {
+            const adminUser = localStorage.getItem('admin_user');
+            if (!adminUser) {
+                window.location.href = 'admin_login.html';
+                return null;
+            }
+            const user = JSON.parse(adminUser);
+            if (user.role !== 'admin') {
+                alert('您没有管理员权限');
+                window.location.href = 'index.html';
+                return null;
+            }
+            document.getElementById('adminName').textContent = user.username || user.user_id;
+            return user;
+        }
+
+        function logout() {
+            fetch('http://localhost:8081/auth/logout', {
+                method: 'POST',
+                headers: {
+                    'X-User-ID': JSON.parse(localStorage.getItem('admin_user')).user_id
+                }
+            }).then(() => {
+                localStorage.removeItem('admin_user');
+                window.location.href = 'admin_login.html';
+            });
+        }
+
+        function switchTab(tab) {
+            currentTab = tab;
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelector(`.tab:nth-child(${tab === 'system' ? 1 : tab === 'login' ? 2 : 3})`).classList.add('active');
+
+            document.getElementById('systemLogs').style.display = tab === 'system' ? 'block' : 'none';
+            document.getElementById('loginLogs').style.display = tab === 'login' ? 'block' : 'none';
+            document.getElementById('userManagement').style.display = tab === 'users' ? 'block' : 'none';
+
+            if (tab === 'system') loadSystemLogs(1);
+            else if (tab === 'login') loadLoginLogs(1);
+            else if (tab === 'users') loadUsers(1);
+        }
+
+        async function loadSystemLogs(page) {
+            currentSystemPage = page;
+
+            const params = {
+                user_id: document.getElementById('sysUserId').value || null,
+                action: document.getElementById('sysAction').value || null,
+                resource: document.getElementById('sysResource').value || null,
+                start_time: document.getElementById('sysStartTime').value ? document.getElementById('sysStartTime').value + 'T00:00:00' : null,
+                end_time: document.getElementById('sysEndTime').value ? document.getElementById('sysEndTime').value + 'T23:59:59' : null,
+                limit: pageSize,
+                offset: (page - 1) * pageSize
+            };
+
+            try {
+                const response = await fetch('http://localhost:8081/admin/logs/system', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(params)
+                });
+                const data = await response.json();
+
+                const tbody = document.getElementById('systemLogsBody');
+                if (data.logs.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="8" class="no-data">暂无数据</td></tr>';
+                } else {
+                    tbody.innerHTML = data.logs.map(log => `
+                        <tr>
+                            <td>${new Date(log.create_time).toLocaleString()}</td>
+                            <td>${log.user_id || '-'}</td>
+                            <td>${log.action}</td>
+                            <td>${log.resource || '-'}</td>
+                            <td>${log.method || '-'}</td>
+                            <td>${log.ip_address || '-'}</td>
+                            <td><span class="status-badge ${log.response_status < 400 ? 'success' : 'error'}">${log.response_status || '-'}</span></td>
+                            <td>${log.execution_time ? log.execution_time.toFixed(2) + 'ms' : '-'}</td>
+                        </tr>
+                    `).join('');
+                }
+
+                renderPagination('systemPagination', data.total, page, pageSize, loadSystemLogs);
+            } catch (error) {
+                console.error('加载系统日志失败:', error);
+            }
+        }
+
+        async function loadLoginLogs(page) {
+            currentLoginPage = page;
+
+            const params = {
+                user_id: document.getElementById('loginUserId').value || null,
+                action: null,
+                start_time: document.getElementById('loginStartTime').value ? document.getElementById('loginStartTime').value + 'T00:00:00' : null,
+                end_time: document.getElementById('loginEndTime').value ? document.getElementById('loginEndTime').value + 'T23:59:59' : null,
+                limit: pageSize,
+                offset: (page - 1) * pageSize
+            };
+
+            try {
+                const response = await fetch('http://localhost:8081/admin/logs/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(params)
+                });
+                const data = await response.json();
+
+                const tbody = document.getElementById('loginLogsBody');
+                if (data.logs.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="7" class="no-data">暂无数据</td></tr>';
+                } else {
+                    tbody.innerHTML = data.logs.map(log => `
+                        <tr>
+                            <td>${new Date(log.create_time).toLocaleString()}</td>
+                            <td>${log.user_id}</td>
+                            <td>${log.username || '-'}</td>
+                            <td><span class="login-type-badge ${log.login_type}">${log.login_type === 'login' ? '登录' : log.login_type === 'logout' ? '登出' : '注册'}</span></td>
+                            <td>${log.ip_address || '-'}</td>
+                            <td><span class="status-badge ${log.login_status ? 'success' : 'error'}">${log.login_status ? '成功' : '失败'}</span></td>
+                            <td>${log.fail_reason || '-'}</td>
+                        </tr>
+                    `).join('');
+                }
+            } catch (error) {
+                console.error('加载登录日志失败:', error);
+            }
+        }
+
+        async function loadUsers(page) {
+            currentUsersPage = page;
+
+            const role = document.getElementById('userRole').value || null;
+
+            try {
+                const response = await fetch(`http://localhost:8081/admin/users?role=${role || ''}&limit=${pageSize}&offset=${(page - 1) * pageSize}`);
+                const data = await response.json();
+
+                const tbody = document.getElementById('usersBody');
+                if (data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="8" class="no-data">暂无数据</td></tr>';
+                } else {
+                    tbody.innerHTML = data.map(user => `
+                        <tr>
+                            <td>${user.user_id}</td>
+                            <td>${user.username || '-'}</td>
+                            <td><span class="status-badge ${user.role === 'admin' ? 'info' : ''}">${user.role === 'admin' ? '管理员' : '用户'}</span></td>
+                            <td>${user.email || '-'}</td>
+                            <td>${user.phone || '-'}</td>
+                            <td><span class="status-badge ${user.is_active ? 'success' : 'error'}">${user.is_active ? '正常' : '禁用'}</span></td>
+                            <td>${new Date(user.create_time).toLocaleString()}</td>
+                            <td>${user.last_login_time ? new Date(user.last_login_time).toLocaleString() : '从未登录'}</td>
+                        </tr>
+                    `).join('');
+                }
+            } catch (error) {
+                console.error('加载用户列表失败:', error);
+            }
+        }
+
+        function renderPagination(containerId, total, currentPage, pageSize, loadFn) {
+            const totalPages = Math.ceil(total / pageSize);
+            const container = document.getElementById(containerId);
+
+            let html = `<button onclick="loadFn(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>上一页</button>`;
+            html += `<span>第 ${currentPage} / ${totalPages} 页，共 ${total} 条</span>`;
+            html += `<button onclick="loadFn(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>下一页</button>`;
+
+            container.innerHTML = html;
+        }
+
+        function clearFilters(type) {
+            if (type === 'system') {
+                document.getElementById('sysUserId').value = '';
+                document.getElementById('sysAction').value = '';
+                document.getElementById('sysResource').value = '';
+                document.getElementById('sysStartTime').value = '';
+                document.getElementById('sysEndTime').value = '';
+                loadSystemLogs(1);
+            } else if (type === 'login') {
+                document.getElementById('loginUserId').value = '';
+                document.getElementById('loginStartTime').value = '';
+                document.getElementById('loginEndTime').value = '';
+                loadLoginLogs(1);
+            }
+        }
+
+        async function cleanupLogs() {
+            if (!confirm('确定要清理30天前的系统日志吗？')) return;
+
+            try {
+                const response = await fetch('http://localhost:8081/admin/logs/cleanup?days=30', {
+                    method: 'DELETE'
+                });
+                const data = await response.json();
+                alert(`已清理 ${data.deleted_count} 条旧日志`);
+                loadSystemLogs(1);
+            } catch (error) {
+                alert('清理失败');
+            }
+        }
+
+        const admin = checkAuth();
+        if (admin) {
+            loadSystemLogs(1);
+        }
+    </script>
+</body>
+</html>
